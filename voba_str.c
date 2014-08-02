@@ -41,6 +41,7 @@ char * v__new_data(uint32_t capacity, uint32_t len, const void * data) // initia
 static inline
 voba_str_t * v__from_haha(uint32_t capacity, uint32_t len, const void * data)
 {
+    assert(capacity > len);
     return v__new(capacity,len,v__new_data(capacity,len,data));
 }
 static inline
@@ -52,16 +53,19 @@ voba_str_t * v__from_data(const void * data, uint32_t s1)
 static inline
 void v__clear(voba_str_t * s)
 {
-    s->capacity = 0;
     s->len = 0;
-    s->data = "";
+    if(s->capacity == 0){
+        s->data = "";
+    }
 }
 static inline
 voba_str_t * v__cat_data(voba_str_t * s1, const void * data, uint32_t len)
 {
     voba_str_t * r = s1;
-    if(r->capacity == 0) { // copy-on-write
-        r = v__new(v__len_to_capacity(len + r->len),r->len, r->data);
+    if(r->capacity == 0) {
+        // copy-on-write
+        const uint32_t capacity = v__len_to_capacity(len + r->len);
+        r = v__new(capacity,r->len,v__new_data(capacity,r->len,r->data));
     }else{
         const uint32_t capacity = v__len_to_capacity(len + r->len);
         if(capacity > r->capacity){
@@ -77,7 +81,7 @@ voba_str_t * v__cat_data(voba_str_t * s1, const void * data, uint32_t len)
 }
 static inline voba_str_t * voba_str_empty()
 {
-    return v__new(0 /*capacity*/, 0 /*len*/, NULL /*data*/);
+    return v__new(0 /*capacity*/, 0 /*len*/, "" /*data*/);
 }
 static inline voba_str_t * voba_str_from_char(char c, uint32_t len)
 {
@@ -102,29 +106,30 @@ static inline voba_str_t * voba_str_fmt_pointer(const void * p)
         r->data[i++] = ("0123456789ABCDEF")[(x&mask)>>s];
         mask >>= 4; s -= 4;
     }
+    r->len = i;
     r->data[i++] = '\0';
     return r;
 }
-#define VOBA_STR_FMT_INT(type,sign)                         \
-static inline voba_str_t * voba_str_fmt_##type(type x, type base)   \
-{                                                       \
-    assert(base>1 && base <= 16);                       \
-    uint32_t len = 0;                                   \
-    type x2 = x;                                        \
-    uint32_t i  = 0;                                    \
-    int neg = sign == 1 && (!(x >= 0));                 \
-    while(x2/=base) len ++;                             \
-    len ++;                                             \
-    if(neg) len ++;                                     \
-    voba_str_t * r = voba_str_from_char(' ',len);            \
-    i = len + 1;                                        \
-    r->data[--i] = '\0';                                \
-    if(neg) { x = (~x + 1); }                           \
-    do {                                                \
-        (r->data[--i] = "0123456789ABCDEF"[x%base]);    \
-    }while ((x/=base) !=0);                             \
-    if(neg) r->data[--i] = '-';                         \
-    return r;                                           \
+#define VOBA_STR_FMT_INT(type,sign)                                     \
+static inline voba_str_t * voba_str_fmt_##type(type x, type base)       \
+{                                                                       \
+    const char * digits = &("fedcba9876543210123456789abcdef"[15]);     \
+    assert(base>1 && base <= 16);                                       \
+    uint32_t len = 0;                                                   \
+    type x2 = x;                                                        \
+    uint32_t i  = 0;                                                    \
+    int neg = sign == 1 && (!(x >= 0));                                 \
+    while(x2/=base) len ++;                                             \
+    len ++;                                                             \
+    if(neg) len ++;                                                     \
+    voba_str_t * r = voba_str_from_char(' ',len);                       \
+    i = len + 1;                                                        \
+    r->data[--i] = '\0';                                                \
+    do {                                                                \
+        r->data[--i] = digits[x%base];                                  \
+    }while ((x/=base) !=0);                                             \
+    if(neg) r->data[--i] = '-';                                         \
+    return r;                                                           \
 }
 
 VOBA_STR_FMT_INT(  int8_t,1)
@@ -142,7 +147,7 @@ static inline voba_str_t * voba_str_fmt_float(float x)
 static inline voba_str_t * voba_str_from_cstr(const char * str)
 {
     const size_t len = str==NULL?0:strlen(str);
-    return v__new(0 /*capacity*/,len,(const void*)str);
+    return v__new(0 /*capacity*/,len,(const void*)(str==NULL?"":str));
 }
 static inline const char * voba_str_to_cstr(voba_str_t *s )
 {
@@ -223,7 +228,7 @@ static inline voba_str_t * voba_str_copy(const voba_str_t * s1)
     if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
         return NULL;
     }
-    return v__from_haha(s1->capacity,s1->len, s1->data);
+    return v__from_haha(s1->capacity == 0? v__len_to_capacity(s1->len+1):s1->capacity ,s1->len, s1->data);
 }
 static inline voba_str_t * voba_str_assign(voba_str_t * s1, voba_str_t * s2)
 {
@@ -262,6 +267,7 @@ static inline voba_str_t * voba_str_assign_data(voba_str_t * s1, const void * da
     s1->capacity = 0;
     s1->len = len;
     s1->data = (char*)data;
+    return s1;
 }
 static inline voba_str_t * voba_str_toupper(voba_str_t * s1)
 {
@@ -270,7 +276,7 @@ static inline voba_str_t * voba_str_toupper(voba_str_t * s1)
     }
     if(s1->capacity == 0){
         // copy-on-write
-        s1 = v__new(s1->capacity,s1->len,v__new_data(s1->capacity,s1->len,s1->data));
+        s1 = v__new(v__len_to_capacity(s1->len+1),s1->len,v__new_data(s1->capacity,s1->len,s1->data));
     }
     for(uint32_t i = 0; i < s1->len; ++i){
         s1->data[i] = (char) toupper((int) s1->data[i]);
@@ -284,7 +290,7 @@ static inline voba_str_t * voba_str_tolower(voba_str_t * s1)
     }
     if(s1->capacity == 0){
         // copy-on-write
-        s1 = v__new(s1->capacity,s1->len,v__new_data(s1->capacity,s1->len,s1->data));
+        s1 = v__new(v__len_to_capacity(s1->len+1),s1->len,v__new_data(s1->capacity,s1->len,s1->data));
     }
     for(uint32_t i = 0; i < s1->len; ++i){
         s1->data[i] = (char) tolower((int) s1->data[i]);
