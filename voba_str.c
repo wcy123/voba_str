@@ -130,7 +130,7 @@ static inline voba_str_t * voba_str_fmt_##type(type x, type base)       \
     while(x2/=base) len ++;                                             \
     len ++;                                                             \
     if(neg) len ++;                                                     \
-    voba_str_t * r = voba_mkstr(' ',len);                       \
+    voba_str_t * r = voba_mkstr(' ',len);                               \
     i = len + 1;                                                        \
     r->data[--i] = '\0';                                                \
     do {                                                                \
