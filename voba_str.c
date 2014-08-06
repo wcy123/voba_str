@@ -9,6 +9,15 @@
 
 
 static inline
+int v__is_valid(const voba_str_t * s1)
+{
+    if (s1 == NULL || s1->data == NULL ||
+        (s1->capacity != 0 && s1->capacity < s1->len + 1)){
+        return 0;
+    }
+    return 1;
+}
+static inline
 uint32_t v__len_to_capacity(uint32_t s) 
 {
     int a = 0;
@@ -20,18 +29,9 @@ uint32_t v__len_to_capacity(uint32_t s)
     return (1<<(32 - a));
 }
 static inline
-voba_str_t * v__new(uint32_t capacity, uint32_t len, const void * data)
+char * v__new_data(uint32_t capacity, uint32_t len, const char * data) 
 {
-    voba_str_t * ret = (voba_str_t*)GC_MALLOC(sizeof(voba_str_t));
-    assert(capacity == 0 || len + 1 < capacity);
-    ret->capacity = capacity;
-    ret->len = len;
-    ret->data = (char*)data;
-    return ret;
-}
-static inline
-char * v__new_data(uint32_t capacity, uint32_t len, const void * data) // initialized with ending '\0'
-{
+    // initialized with ending '\0'
     char *  p  = (char*) GC_MALLOC_ATOMIC(capacity);
     assert(p);
     if(len) memcpy(p, data, len);
@@ -39,16 +39,24 @@ char * v__new_data(uint32_t capacity, uint32_t len, const void * data) // initia
     return p;
 }
 static inline
-voba_str_t * v__from_haha(uint32_t capacity, uint32_t len, const void * data)
+voba_str_t * v__new(uint32_t capacity, uint32_t len, const char * data, int copy_data)
 {
-    assert(capacity > len);
-    return v__new(capacity,len,v__new_data(capacity,len,data));
+    voba_str_t * ret = (voba_str_t*)GC_MALLOC(sizeof(voba_str_t));
+    assert(capacity == 0 || len + 1 < capacity);
+    ret->capacity = capacity;
+    ret->len = len;
+    if(copy_data){
+        ret->data = v__new_data(capacity,len,data);
+    }else{
+        ret->data = (char*)data;
+    }
+    return ret;
 }
 static inline
-voba_str_t * v__from_data(const void * data, uint32_t s1)
+voba_str_t * v__from_data(const void * data, uint32_t len)
 {
-    const uint32_t capacity = v__len_to_capacity(s1 + 1);
-    return v__from_haha(capacity,s1,data);
+    const uint32_t capacity = v__len_to_capacity(len + 1);
+    return v__new(capacity,len,data, 1 /*copy_data*/);
 }
 static inline
 void v__clear(voba_str_t * s)
@@ -65,7 +73,7 @@ voba_str_t * v__cat_data(voba_str_t * s1, const void * data, uint32_t len)
     if(r->capacity == 0) {
         // copy-on-write
         const uint32_t capacity = v__len_to_capacity(len + r->len);
-        r = v__new(capacity,r->len,v__new_data(capacity,r->len,r->data));
+        r = v__new(capacity,r->len,r->data,1 /*copy data*/);
     }else{
         const uint32_t capacity = v__len_to_capacity(len + r->len);
         if(capacity > r->capacity){
@@ -81,15 +89,15 @@ voba_str_t * v__cat_data(voba_str_t * s1, const void * data, uint32_t len)
 }
 static inline voba_str_t * voba_str_empty()
 {
-    return v__new(0 /*capacity*/, 0 /*len*/, "" /*data*/);
+    return v__new(0 /*capacity*/, 0 /*len*/, "" /*data*/, 0 /*copy data*/);
 }
-static inline voba_str_t * voba_str_from_char(char c, uint32_t len)
+static inline voba_str_t * voba_mkstr(char c, uint32_t len)
 {
     const uint32_t capacity = v__len_to_capacity(len + 1);
     char * p = (char*) GC_MALLOC_ATOMIC(capacity);
     memset((void*)p,(int)c,len);
     p[len] = '\0';
-    return v__new(capacity,len,p);
+    return v__new(capacity,len,p, 0 /*copy data*/);
 }
 static inline voba_str_t * voba_str_fmt_pointer(const void * p)
 {
@@ -97,7 +105,7 @@ static inline voba_str_t * voba_str_fmt_pointer(const void * p)
     int s = (sizeof(uintptr_t)*8) -4;
     uintptr_t mask = (uintptr_t) (((uintptr_t)0xF) << s);
     uintptr_t x = (uintptr_t) p;
-    voba_str_t * r = voba_str_from_char(' ', s/4 + 4);
+    voba_str_t * r = voba_mkstr(' ', s/4 + 4);
     r->data[i++] = '0';
     r->data[i++] = 'x';
     while(((x&mask)>>s) == 0 && s>0) { mask >>= 4; s -= 4; }
@@ -122,7 +130,7 @@ static inline voba_str_t * voba_str_fmt_##type(type x, type base)       \
     while(x2/=base) len ++;                                             \
     len ++;                                                             \
     if(neg) len ++;                                                     \
-    voba_str_t * r = voba_str_from_char(' ',len);                       \
+    voba_str_t * r = voba_mkstr(' ',len);                       \
     i = len + 1;                                                        \
     r->data[--i] = '\0';                                                \
     do {                                                                \
@@ -146,8 +154,9 @@ static inline voba_str_t * voba_str_fmt_float(float x)
 }
 static inline voba_str_t * voba_str_from_cstr(const char * str)
 {
-    const size_t len = str==NULL?0:strlen(str);
-    return v__new(0 /*capacity*/,len,(const void*)(str==NULL?"":str));
+    str = (str==NULL?"":str);
+    const size_t len = strlen(str);
+    return v__new(0 /*capacity*/,len,(const void*) str, 0 /*copy data*/);
 }
 static inline const char * voba_str_to_cstr(voba_str_t *s )
 {
@@ -155,7 +164,7 @@ static inline const char * voba_str_to_cstr(voba_str_t *s )
         return "";
     }
     // when s->capacity !=0, `s` own `data`.
-    if(s->capacity != 0 && s->data[s->len] == '\0'){
+    if( s->data[s->len] == '\0'){
         return s->data;
     }
     return v__new_data(s->len+1,s->len, s->data);
@@ -174,80 +183,63 @@ static inline char * voba_str_to_str(voba_str_t *s )
 static inline voba_str_t * voba_str_from_data(const void * p, uint32_t len )
 {
     if(len == 0 || p == NULL){
-        return v__new(0 /*capacity*/, 0 /*len*/, NULL /*data*/);
+        return v__new(0 /*capacity*/, 0 /*len*/, "" /*data*/, 0 /*copy data*/);
     }
     return v__from_data(p,len);
 }
-static inline voba_str_t * voba_str_cat(voba_str_t * s1, const voba_str_t * s2)
+static inline voba_str_t * voba_strcat(voba_str_t * s1, const voba_str_t * s2)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
-        return NULL;
-    }
+    if(!v__is_valid(s1)) return NULL;
     if (s2 == NULL || s2->data == NULL || (s2->capacity !=0 && s2->capacity < s2->len + 1)){
         return NULL;
     }
     return v__cat_data(s1,(const void*)s2->data,s2->len);
 }
-static inline voba_str_t * voba_str_cat_cstr(voba_str_t * s1, const char * s2)
+static inline voba_str_t * voba_strcat_cstr(voba_str_t * s1, const char * s2)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
-        return NULL;
-    }
+    if(!v__is_valid(s1)) return NULL;
     if(s2 == NULL || *s2 == '\0'){
         return s1;
     }
     return v__cat_data(s1,s2,(uint32_t)strlen(s2));
 }
-static inline voba_str_t * voba_str_cat_char(voba_str_t * s1, const char c)
+static inline voba_str_t * voba_strcat_char(voba_str_t * s1, const char c)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
-        return NULL;
-    }
+    if(!v__is_valid(s1)) return NULL;
     return v__cat_data(s1,&c,1);
 }
-static inline voba_str_t * voba_str_cat_data(voba_str_t * s1, const char * data, uint32_t len)
+static inline voba_str_t * voba_strcat_data(voba_str_t * s1, const char * data, uint32_t len)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
-        return NULL;
-    }
+    if(!v__is_valid(s1)) return NULL;
     if(data == NULL || len == 0){
         return s1;
     }
     return v__cat_data(s1,data,len);
 }
-static inline voba_str_t * voba_str_clear(voba_str_t * s1)
+static inline voba_str_t * voba_strclr(voba_str_t * s1)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
-        return NULL;
-    }
+    if(!v__is_valid(s1)) return NULL;
     v__clear(s1);
     return s1;
 }
-static inline voba_str_t * voba_str_copy(const voba_str_t * s1)
+static inline voba_str_t * voba_strdup(const voba_str_t * s1)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
-        return NULL;
-    }
-    return v__from_haha(s1->capacity == 0? v__len_to_capacity(s1->len+1):s1->capacity ,s1->len, s1->data);
+    if(!v__is_valid(s1)) return NULL;
+    const uint32_t capacity = s1->capacity == 0? v__len_to_capacity(s1->len+1):s1->capacity;
+    return v__new(capacity, s1->len, s1->data, 1 /*copy data*/);
 }
-static inline voba_str_t * voba_str_assign(voba_str_t * s1, voba_str_t * s2)
+static inline voba_str_t * voba_strcpy(voba_str_t * s1, voba_str_t * s2)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
-         return NULL;
-    }
-    if (s2 == NULL || s2->data == NULL || (s2->capacity != 0 && s2->capacity < s2->len + 1)){
-        return NULL;
-    }
+    if(!v__is_valid(s1)) return NULL;
+    if(!v__is_valid(s2)) return NULL;
     s1->capacity = s2->capacity = 0; // no one own the data
     s1->len = s2->len;
     s1->data = s2->data;
     return s1;
 }
-static inline voba_str_t * voba_str_assign_cstr(voba_str_t * s1, const char * s2)
+static inline voba_str_t * voba_strcpy_cstr(voba_str_t * s1, const char * s2)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
-        return NULL;
-    }
+    if(!v__is_valid(s1)) return NULL;
     if(s2 == NULL){
         s2 = "";
     }
@@ -256,11 +248,9 @@ static inline voba_str_t * voba_str_assign_cstr(voba_str_t * s1, const char * s2
     s1->data = (char*)s2;
     return s1;
 }
-static inline voba_str_t * voba_str_assign_data(voba_str_t * s1, const void * data, uint32_t len)
+static inline voba_str_t * voba_strcpy_data(voba_str_t * s1, const void * data, uint32_t len)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
-        return NULL;
-    }
+    if(!v__is_valid(s1)) return NULL;
     if (data == NULL){
         return NULL;
     }
@@ -269,55 +259,53 @@ static inline voba_str_t * voba_str_assign_data(voba_str_t * s1, const void * da
     s1->data = (char*)data;
     return s1;
 }
-static inline voba_str_t * voba_str_toupper(voba_str_t * s1)
+static inline voba_str_t * voba_toupper(voba_str_t * s1)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
-        return NULL;
-    }
+    if(!v__is_valid(s1)) return NULL;
     if(s1->capacity == 0){
         // copy-on-write
-        s1 = v__new(v__len_to_capacity(s1->len+1),s1->len,v__new_data(s1->capacity,s1->len,s1->data));
+        const uint32_t capacity = v__len_to_capacity(s1->len+1);
+        s1 = v__new(capacity,s1->len,s1->data, 1 /*copy data*/);
     }
     for(uint32_t i = 0; i < s1->len; ++i){
         s1->data[i] = (char) toupper((int) s1->data[i]);
     }
     return s1;
 }
-static inline voba_str_t * voba_str_tolower(voba_str_t * s1)
+static inline voba_str_t * voba_tolower(voba_str_t * s1)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
-        return NULL;
-    }
+    if(!v__is_valid(s1)) return NULL;
     if(s1->capacity == 0){
         // copy-on-write
-        s1 = v__new(v__len_to_capacity(s1->len+1),s1->len,v__new_data(s1->capacity,s1->len,s1->data));
+        const uint32_t capacity = v__len_to_capacity(s1->len+1);
+        s1 = v__new(capacity,s1->len,s1->data, 1 /*copy data*/);
     }
     for(uint32_t i = 0; i < s1->len; ++i){
         s1->data[i] = (char) tolower((int) s1->data[i]);
     }
     return s1;
 }
-static inline int voba_str_eq(const voba_str_t* s1, const voba_str_t * s2)
+static inline int voba_strcmp(const voba_str_t* s1, const voba_str_t * s2)
 {
     if(s1 == NULL || s2 == NULL ) return 0;
     if(s1 == s2) return 1;
     if(s1->len != s2->len ) return 0;
     if(s1->data == s2->data)  return 1;
-    return memcmp((const void*)s1->data,(const void*)s2->data, (size_t) s1->len) == 0;
+    return strncmp(s1->data,s2->data, (size_t) s1->len);
 }
-static inline uint32_t voba_str_size(const voba_str_t * s1)
+static inline uint32_t voba_strlen(const voba_str_t * s1)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1)){
+    if (!v__is_valid(s1)){
          return (uint32_t)(-1);
     }
     return s1->len;
 }
-static inline voba_str_t * voba_str_substr(voba_str_t * s1, uint32_t from, uint32_t len)
+static inline voba_str_t * voba_substr(voba_str_t * s1, uint32_t from, uint32_t len)
 {
-    if (s1 == NULL || s1->data == NULL || (s1->capacity != 0 && s1->capacity < s1->len + 1) || (from >= s1->len)
-        || (from + len > s1->len) ){
+    if(!v__is_valid(s1)) return NULL;
+    if (from >= s1->len || (from + len > s1->len) ){
         return NULL;
     }
     s1->capacity = 0;
-    return v__new(0/*capacity*/,len, s1->data + from);
+    return v__new(0/*capacity*/,len, s1->data + from, 0 /*copy data*/);
 }

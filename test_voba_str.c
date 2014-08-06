@@ -14,7 +14,7 @@ inline static void dump_string(voba_str_t *p)
         printf("(null)\n");
         return;
     }
-    printf("%p(%d,%d) \"%s\"\n",(void*)p->data,p->capacity,p->len, p->data);
+    printf("%p(%d,%d) \"%s\"\n",(void*)p->data,p->capacity,voba_strlen(p), p->data);
 }
 int test_1()
 {
@@ -29,9 +29,9 @@ int test_2()
 }
 int test_3()
 {
-    voba_str_t * s1 = voba_str_from_char('!',32) ;
+    voba_str_t * s1 = voba_mkstr('!',32) ;
     assert(s1->capacity == 64);
-    assert(s1->len == 32);
+    assert(voba_strlen(s1) == 32);
     dump_string(s1);
     return 0;
 }
@@ -41,9 +41,9 @@ int test_4()
     voba_str_t * s1 = voba_str_empty();
     voba_str_t * s2 = voba_str_fmt_pointer((void*) s1);
     snprintf(buf,1024,"%p",(void*)s1);
-    s2 = voba_str_tolower(s2);
+    s2 = voba_tolower(s2);
     printf("the voba_str_fmt_pointer %s snprintf  %s\n",s2->data, buf);
-    assert(voba_str_eq(s2,voba_str_from_cstr(buf)));
+    assert(voba_strcmp(s2,voba_str_from_cstr(buf)) == 0);
     dump_string(s2);
     return 0;
 }
@@ -54,7 +54,7 @@ int test_5()
     for(unsigned long i = 0 ; i < 256; i++,x++){
         voba_str_t * s2 = voba_str_fmt_int8_t(x,10);
         snprintf(buf,1024,"%d",x);
-        if(!(voba_str_eq(s2,voba_str_from_cstr(buf)))){
+        if(!(voba_strcmp(s2,voba_str_from_cstr(buf))==0)){
             dump_string(s2);
             printf("snprinf return %s\n",buf);
             assert(0);
@@ -69,7 +69,7 @@ int test_6()
     for(unsigned long i = 0 ; i < 256; i++,x++){
         voba_str_t * s2 = voba_str_fmt_uint8_t(x,10);
         snprintf(buf,1024,"%d",x);
-        if(!(voba_str_eq(s2,voba_str_from_cstr(buf)))){
+        if(!(voba_strcmp(s2,voba_str_from_cstr(buf))==0)){
             dump_string(s2);
             printf("snprinf return %s\n",buf);
             assert(0);
@@ -84,7 +84,7 @@ int test_7()
     for(unsigned long i = 0 ; i < 0xffff; i++,x++){
         voba_str_t * s2 = voba_str_fmt_int16_t(x,10);
         snprintf(buf,1024,"%d",x);
-        if(!(voba_str_eq(s2,voba_str_from_cstr(buf)))){
+        if(!(voba_strcmp(s2,voba_str_from_cstr(buf))==0)){
             dump_string(s2);
             printf("snprinf return %s\n",buf);
             assert(0);
@@ -99,7 +99,7 @@ int test_8()
     for(unsigned long i = 0 ; i < 0xffff; i++,x++){
         voba_str_t * s2 = voba_str_fmt_uint16_t(x,10);
         snprintf(buf,1024,"%d",x);
-        if(!(voba_str_eq(s2,voba_str_from_cstr(buf)))){
+        if(!(voba_strcmp(s2,voba_str_from_cstr(buf))==0)){
             dump_string(s2);
             printf("snprinf return %s\n",buf);
             assert(0);
@@ -124,7 +124,7 @@ int test_9()
         snprintf(buf,1024,"%d",x);
         toc = get_time();
         t2 += toc - tic;
-        if(!(voba_str_eq(s2,voba_str_from_cstr(buf)))){
+        if(!(voba_strcmp(s2,voba_str_from_cstr(buf))==0)){
             dump_string(s2);
             printf("snprinf return %s\n",buf);
             assert(0);
@@ -140,7 +140,7 @@ int test_10()
     for(unsigned long i = 0 ; i < 0xffff; i++,x++){
         voba_str_t * s2 = voba_str_fmt_uint32_t(x,10);
         snprintf(buf,1024,"%d",x);
-        if(!(voba_str_eq(s2,voba_str_from_cstr(buf)))){
+        if(!(voba_strcmp(s2,voba_str_from_cstr(buf))==0)){
             dump_string(s2);
             printf("snprinf return %s\n",buf);
             assert(0);
@@ -154,13 +154,13 @@ int test_11()
     dump_string(p1);
     p1 = voba_str_from_cstr(NULL);
     assert(p1->capacity == 0);
-    assert(p1->len == 0);
+    assert(voba_strlen(p1) == 0);
     assert(p1->data != 0);
     assert(*p1->data == '\0');
     dump_string(p1);
     p1 = voba_str_from_cstr("");
     assert(p1->capacity == 0);
-    assert(p1->len == 0);
+    assert(voba_strlen(p1) == 0);
     assert(p1->data != 0);
     assert(*p1->data == '\0');
     dump_string(p1);
@@ -170,56 +170,56 @@ int test_12()
 {
     voba_str_t* p1 = voba_str_from_cstr("");
     assert(p1->capacity == 0);
-    assert(p1->len == 0);
+    assert(voba_strlen(p1) == 0);
     assert(p1->data != 0);
     assert(*p1->data == '\0');
-    voba_str_t* p2 = voba_str_cat(p1, voba_str_from_cstr("GOOD"));
+    voba_str_t* p2 = voba_strcat(p1, voba_str_from_cstr("GOOD"));
     // p1 is not touched
     assert(p1->capacity == 0);
-    assert(p1->len == 0);
+    assert(voba_strlen(p1) == 0);
     assert(p1->data != 0);
     assert(*p1->data == '\0');
     assert(p2->capacity == 8);
-    assert(p2->len == 4);
+    assert(voba_strlen(p2) == 4);
     assert(p2->data != 0);
-    p1 = voba_str_cat_cstr(p2, " GOOD");
+    p1 = voba_strcat_cstr(p2, " GOOD");
     assert(p1 == p2);
     assert(p2->capacity == 16);
-    assert(p2->len == 9);
+    assert(voba_strlen(p2) == 9);
     dump_string(p2);
-    p1 = voba_str_cat_cstr(p2,NULL);
+    p1 = voba_strcat_cstr(p2,NULL);
     assert(p2->capacity == 16);
-    assert(p2->len == 9);
+    assert(voba_strlen(p2) == 9);
     assert(p1 == p2);
-    p1 = voba_str_cat_cstr(p2,"");
+    p1 = voba_strcat_cstr(p2,"");
     assert(p2->capacity == 16);
-    assert(p2->len == 9);
+    assert(voba_strlen(p2) == 9);
     assert(p1 == p2);
-    p1 = voba_str_cat_data(p2,"!",1);
+    p1 = voba_strcat_data(p2,"!",1);
     assert(p2->capacity == 16);
-    assert(p2->len == 10);
+    assert(voba_strlen(p2) == 10);
     assert(p1 == p2);
-    while(p2->len < 16){
-        p2 = voba_str_cat_char(p2,' ');
+    while(voba_strlen(p2) < 16){
+        p2 = voba_strcat_char(p2,' ');
     }
     assert(p2->capacity == 32);
-    assert(p2->len == 16);
+    assert(voba_strlen(p2) == 16);
     dump_string(p2);
-    p1 = voba_str_cat(p2,NULL);
+    p1 = voba_strcat(p2,NULL);
     assert(p1 == NULL);
     assert(p2->data !=NULL);
-    p1 = voba_str_cat(NULL,p2);
+    p1 = voba_strcat(NULL,p2);
     assert(p1 == NULL);
-    p1 = voba_str_cat_cstr(p2,NULL);
+    p1 = voba_strcat_cstr(p2,NULL);
     assert(p1 == p2);
     assert(p2->data !=NULL);
-    p1 = voba_str_cat_cstr(NULL,NULL);
+    p1 = voba_strcat_cstr(NULL,NULL);
     assert(p1 == NULL);
-    p1 = voba_str_cat_char(NULL,' ');
+    p1 = voba_strcat_char(NULL,' ');
     assert(p1 == NULL);
-    p1 = voba_str_cat_data(NULL,NULL,100);
+    p1 = voba_strcat_data(NULL,NULL,100);
     assert(p1 == NULL);
-    p1 = voba_str_cat_data(p2,NULL,100);
+    p1 = voba_strcat_data(p2,NULL,100);
     assert(p1 == p2);
     return 0;
 }
@@ -227,37 +227,37 @@ int test_13()
 {
     voba_str_t * p3 = voba_str_from_cstr("GOOD");
     assert(p3->capacity == 0);
-    assert(p3->len == 4);
-    voba_str_t * p4 = voba_str_copy(p3);
+    assert(voba_strlen(p3) == 4);
+    voba_str_t * p4 = voba_strdup(p3);
     assert(p3->capacity == 0);
-    assert(p3->len == 4);
+    assert(voba_strlen(p3) == 4);
     assert(p4 != p3);
     assert(p4->capacity == 8);
-    assert(p4->len == 4);
+    assert(voba_strlen(p4) == 4);
     assert(p3->data != p4->data);
-    voba_str_t * p5 = voba_str_copy(p4);
+    voba_str_t * p5 = voba_strdup(p4);
     assert(p4->capacity == 8);
-    assert(p4->len == 4);
+    assert(voba_strlen(p4) == 4);
     assert(p5->capacity == 8);
-    assert(p5->len == 4);
+    assert(voba_strlen(p5) == 4);
     assert(p5->data != p4->data);
     return 1;
 }
 int test_14()
 {
-    voba_str_t * p1 = voba_str_clear(NULL);
+    voba_str_t * p1 = voba_strclr(NULL);
     assert(p1 == NULL);
-    p1  = voba_str_copy(NULL);
+    p1  = voba_strdup(NULL);
     assert(p1 == NULL);
     voba_str_t * p4 = voba_str_from_cstr("GOOD");
-    voba_str_clear(p4);
+    voba_strclr(p4);
     assert(p4->capacity == 0);
-    assert(p4->len == 0);
+    assert(voba_strlen(p4) == 0);
     assert(*p4->data == '\0');
-    p4 = voba_str_copy(p4);
-    voba_str_clear(p4);
+    p4 = voba_strdup(p4);
+    voba_strclr(p4);
     assert(p4->capacity == 2);
-    assert(p4->len == 0);
+    assert(voba_strlen(p4) == 0);
     assert(p4->data!=NULL);
     assert(*p4->data == '\0');
     return 1;
@@ -268,54 +268,54 @@ printf("runnint test " # n " done\n")            ;      \
 }while(0)
 int test_15()
 {
-    voba_str_t * p1 = voba_str_assign_cstr(NULL,"GOOD");
+    voba_str_t * p1 = voba_strcpy_cstr(NULL,"GOOD");
     assert(p1 == NULL);
 
     voba_str_t * p4 = voba_str_empty();
     assert(p4->capacity == 0);
-    assert(p4->len == 0);
+    assert(voba_strlen(p4) == 0);
     assert(p4->data != NULL);
     assert(*p4->data == '\0');    
 
-    p4 = voba_str_assign_cstr(p4,"GOOD");
+    p4 = voba_strcpy_cstr(p4,"GOOD");
     assert(p4->capacity == 0);
-    assert(p4->len == 4);
+    assert(voba_strlen(p4) == 4);
     assert(p4->data != NULL);
     assert(*p4->data == 'G');    
 
-    p4 = voba_str_assign_cstr(p4,NULL);
+    p4 = voba_strcpy_cstr(p4,NULL);
     assert(p4->capacity == 0);
-    assert(p4->len == 0);
+    assert(voba_strlen(p4) == 0);
     assert(p4->data != NULL);
     assert(*p4->data == '\0');    
 
-    p4 = voba_str_assign_data(p4,"GOOD",4);
+    p4 = voba_strcpy_data(p4,"GOOD",4);
     assert(p4->capacity == 0);
-    assert(p4->len == 4);
+    assert(voba_strlen(p4) == 4);
     assert(p4->data != NULL);
     assert(*p4->data == 'G');    
 
-    p1 = voba_str_assign_data(NULL,NULL,10);
+    p1 = voba_strcpy_data(NULL,NULL,10);
     assert(p1 == NULL);
 
-    p1 = voba_str_assign_data(p4,NULL,10);
+    p1 = voba_strcpy_data(p4,NULL,10);
     assert(p1 == NULL);
 
     
-    p4 = voba_str_from_char('\0',4);
+    p4 = voba_mkstr('\0',4);
     char * data = p4->data;
     assert(p4->capacity == 8);
-    assert(p4->len == 4);
+    assert(voba_strlen(p4) == 4);
     assert(p4->data == data);
     assert(*p4->data == '\0');
-    p4 = voba_str_assign_cstr(p4,"VERY GOOD");
+    p4 = voba_strcpy_cstr(p4,"VERY GOOD");
     assert(p4->capacity == 0);
-    assert(p4->len == 9);
+    assert(voba_strlen(p4) == 9);
     assert(p4->data != data);
     assert(*p4->data == 'V');    
-    p4 = voba_str_assign_data(p4,"BAD",3);
+    p4 = voba_strcpy_data(p4,"BAD",3);
     assert(p4->capacity == 0);
-    assert(p4->len == 3);
+    assert(voba_strlen(p4) == 3);
     assert(p4->data != data);
     assert(*p4->data == 'B');
     return 1;
@@ -326,37 +326,37 @@ int test_16()
 
     voba_str_t* p4 = p1;
     assert(p4->capacity == 0);
-    assert(p4->len == 4);
+    assert(voba_strlen(p4) == 4);
     assert(p4->data != NULL);
     assert(*p4->data == 'g');    
 
-    p4 = voba_str_toupper(p4);
+    p4 = voba_toupper(p4);
     assert(p4 != p1);
     assert(p4->capacity == 8);
-    assert(p4->len == 4);
+    assert(voba_strlen(p4) == 4);
     assert(p4->data != NULL);
     assert(*p4->data == 'G');    
 
 
     p1 = p4;
-    p4 = voba_str_tolower(p4);
+    p4 = voba_tolower(p4);
     assert(p4 == p1);
     assert(p4->capacity == 8);
-    assert(p4->len == 4);
+    assert(voba_strlen(p4) == 4);
     assert(p4->data != NULL);
     assert(*p4->data == 'g');    
 
 
-    p1 = voba_str_toupper(NULL);
+    p1 = voba_toupper(NULL);
     assert(p1 == NULL);
-    p1 = voba_str_tolower(NULL);
+    p1 = voba_tolower(NULL);
     assert(p1 == NULL);
 
     p1 = voba_str_from_cstr("GOOD");
-    p4 = voba_str_tolower(p1);
+    p4 = voba_tolower(p1);
     assert(p4 != p1);
     assert(p4->capacity == 8);
-    assert(p4->len == 4);
+    assert(voba_strlen(p4) == 4);
     assert(p4->data != NULL);
     assert(*p4->data == 'g');    
     
@@ -366,14 +366,14 @@ int test_17()
 {
     voba_str_t* p1 = voba_str_from_cstr("good");
     voba_str_t* p4 = p1;
-    voba_str_t * p5 = voba_str_substr(p4,1,3);
-    assert(voba_str_eq(p5,voba_str_from_cstr("ood")));
+    voba_str_t * p5 = voba_substr(p4,1,3);
+    assert(voba_strcmp(p5,voba_str_from_cstr("ood"))==0);
 
         
-    p1 = voba_str_substr(NULL,1,12);
+    p1 = voba_substr(NULL,1,12);
     assert(p1 == NULL);
 
-    p1 = voba_str_substr(p4,1,12);
+    p1 = voba_substr(p4,1,12);
     assert(p1 == NULL);
     return 1;
 }
