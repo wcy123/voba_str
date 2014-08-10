@@ -56,14 +56,14 @@ static inline
 voba_str_t * v__from_data(const void * data, uint32_t len)
 {
     const uint32_t capacity = v__len_to_capacity(len + 1);
-    return v__new(capacity,len,data, 1 /*copy_data*/);
+    return v__new(capacity,len, (const char*)data, 1 /*copy_data*/);
 }
 static inline
 void v__clear(voba_str_t * s)
 {
     s->len = 0;
     if(s->capacity == 0){
-        s->data = "";
+        s->data = (char*)"";
     }
 }
 static inline
@@ -156,7 +156,7 @@ static inline voba_str_t * voba_str_from_cstr(const char * str)
 {
     str = (str==NULL?"":str);
     const size_t len = strlen(str);
-    return v__new(0 /*capacity*/,len,(const void*) str, 0 /*copy data*/);
+    return v__new(0 /*capacity*/,len,(const char*) str, 0 /*copy data*/);
 }
 static inline const char * voba_str_to_cstr(voba_str_t *s )
 {

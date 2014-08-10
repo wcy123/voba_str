@@ -1,5 +1,9 @@
 #pragma once
 #include <stdint.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
+    
 typedef struct voba_str_s {
     char *   data;
     uint32_t capacity;
@@ -40,6 +44,9 @@ static inline voba_str_t * voba_substr(voba_str_t * s1, uint32_t from, uint32_t 
 //---------------------------------------------------------------------------------
 #include "voba_str.c"
 
+#ifdef __cplusplus
+}
+#endif
 
 
 
