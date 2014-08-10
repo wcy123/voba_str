@@ -39,7 +39,7 @@ static inline voba_str_t * voba_tolower(voba_str_t * s1);
 static inline int          voba_strcmp(const voba_str_t* s1, const voba_str_t * s2);
 static inline uint32_t     voba_strlen(const voba_str_t * s1);
 static inline voba_str_t * voba_substr(voba_str_t * s1, uint32_t from, uint32_t to);
-
+static inline voba_str_t * voba_str_replace(voba_str_t * s1, char from, char to);
 
 //---------------------------------------------------------------------------------
 #include "voba_str.c"

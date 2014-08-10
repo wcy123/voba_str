@@ -67,6 +67,26 @@ void v__clear(voba_str_t * s)
     }
 }
 static inline
+voba_str_t * v__cow(voba_str_t * s1)
+{
+    if(s1->capacity == 0){
+        // copy-on-write
+        const uint32_t capacity = v__len_to_capacity(s1->len+1);
+        s1 = v__new(capacity,s1->len,s1->data, 1 /*copy data*/);
+    }
+    return s1;
+}
+static inline
+voba_str_t * v__map(voba_str_t * s1, int (*f)(int))
+{
+    if(!v__is_valid(s1)) return NULL;
+    s1 = v__cow(s1);
+    for(uint32_t i = 0; i < s1->len; ++i){
+        s1->data[i] = (char) f((int)s1->data[i]);
+    }
+    return s1;
+}
+static inline
 voba_str_t * v__cat_data(voba_str_t * s1, const void * data, uint32_t len)
 {
     voba_str_t * r = s1;
@@ -261,29 +281,11 @@ static inline voba_str_t * voba_strcpy_data(voba_str_t * s1, const void * data, 
 }
 static inline voba_str_t * voba_toupper(voba_str_t * s1)
 {
-    if(!v__is_valid(s1)) return NULL;
-    if(s1->capacity == 0){
-        // copy-on-write
-        const uint32_t capacity = v__len_to_capacity(s1->len+1);
-        s1 = v__new(capacity,s1->len,s1->data, 1 /*copy data*/);
-    }
-    for(uint32_t i = 0; i < s1->len; ++i){
-        s1->data[i] = (char) toupper((int) s1->data[i]);
-    }
-    return s1;
+    return v__map(s1,toupper);
 }
 static inline voba_str_t * voba_tolower(voba_str_t * s1)
 {
-    if(!v__is_valid(s1)) return NULL;
-    if(s1->capacity == 0){
-        // copy-on-write
-        const uint32_t capacity = v__len_to_capacity(s1->len+1);
-        s1 = v__new(capacity,s1->len,s1->data, 1 /*copy data*/);
-    }
-    for(uint32_t i = 0; i < s1->len; ++i){
-        s1->data[i] = (char) tolower((int) s1->data[i]);
-    }
-    return s1;
+    return v__map(s1,tolower);
 }
 static inline int voba_strcmp(const voba_str_t* s1, const voba_str_t * s2)
 {
@@ -308,4 +310,13 @@ static inline voba_str_t * voba_substr(voba_str_t * s1, uint32_t from, uint32_t 
     }
     s1->capacity = 0;
     return v__new(0/*capacity*/,len, s1->data + from, 0 /*copy data*/);
+}
+static inline voba_str_t * voba_str_replace(voba_str_t * s1, char from, char to)
+{
+    if(!v__is_valid(s1)) return NULL;
+    s1 = v__cow(s1);
+    for(uint32_t i = 0; i < s1->len; ++i){
+        s1->data[i] = s1->data[i] == from?to:s1->data[i];
+    }
+    return s1;
 }

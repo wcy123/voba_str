@@ -115,7 +115,7 @@ int test_9()
     double t2 = 0.0;
     double tic = 0.0;
     double toc = 0.0;
-    for(unsigned long i = 0 ; i < 0xffff; i++,x++){
+    for(unsigned long i = 0 ; i < 0xfff; i++,x++){
         tic = get_time();
         voba_str_t * s2 = voba_str_fmt_int32_t(x,10);
         toc = get_time();
@@ -171,6 +171,7 @@ int test_12()
     voba_str_t* p1 = voba_str_from_cstr("");
     assert(p1->capacity == 0);
     assert(voba_strlen(p1) == 0);
+    assert(voba_strlen(NULL) == UINT_MAX);
     assert(p1->data != 0);
     assert(*p1->data == '\0');
     voba_str_t* p2 = voba_strcat(p1, voba_str_from_cstr("GOOD"));
@@ -377,6 +378,19 @@ int test_17()
     assert(p1 == NULL);
     return 1;
 }
+int test_18()
+{
+    voba_str_t* p1 = voba_str_from_cstr(".abc.def.xxx");
+    voba_str_t* p2 = voba_str_replace(p1,'.','/');
+    assert(p2!=p1);
+    assert(p2->data[0] == '/');
+    dump_string(p2);
+    voba_str_t* p3 = voba_str_replace(p2,'/','.');
+    assert(p2==p3);
+    assert(p2->data[0] == '.');
+    dump_string(p2);
+    return 1;
+}
 int main(int argc, char *argv[])
 {
     RUN_REST(1);
@@ -396,6 +410,7 @@ int main(int argc, char *argv[])
     RUN_REST(15);
     RUN_REST(16);        
     RUN_REST(17);
+    RUN_REST(18);
     return 0;
 }
 
