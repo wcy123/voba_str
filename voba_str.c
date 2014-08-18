@@ -123,7 +123,6 @@ INLINE voba_str_t * voba_str_fmt_pointer(const void * p)
     r->data[i++] = '0';
     r->data[i++] = 'x';
     while(((x&mask)>>s) == 0 && s>0) { mask >>= 4; s -= 4; }
-    printf("%d\n",s);
     while(mask!= 0) {
         r->data[i++] = ("0123456789ABCDEF")[(x&mask)>>s];
         mask >>= 4; s -= 4;
