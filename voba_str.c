@@ -106,7 +106,7 @@ INLINE voba_str_t * voba_str_empty()
 {
     return v__new(0 /*capacity*/, 0 /*len*/, "" /*data*/, 0 /*copy data*/);
 }
-INLINE voba_str_t * voba_mkstr(char c, uint32_t len)
+INLINE voba_str_t * voba_str_from_char(char c, uint32_t len)
 {
     const uint32_t capacity = v__len_to_capacity(len + 1);
     char * p = (char*) GC_MALLOC_ATOMIC(capacity);
@@ -120,7 +120,7 @@ INLINE voba_str_t * voba_str_fmt_pointer(const void * p)
     int s = (sizeof(uintptr_t)*8) -4;
     uintptr_t mask = (uintptr_t) (((uintptr_t)0xF) << s);
     uintptr_t x = (uintptr_t) p;
-    voba_str_t * r = voba_mkstr(' ', s/4 + 4);
+    voba_str_t * r = voba_str_from_char(' ', s/4 + 4);
     r->data[i++] = '0';
     r->data[i++] = 'x';
     while(((x&mask)>>s) == 0 && s>0) { mask >>= 4; s -= 4; }
@@ -144,7 +144,7 @@ INLINE voba_str_t * voba_str_fmt_##type(type x, type base)       \
     while(x2/=base) len ++;                                             \
     len ++;                                                             \
     if(neg) len ++;                                                     \
-    voba_str_t * r = voba_mkstr(' ',len);                               \
+    voba_str_t * r = voba_str_from_char(' ',len);                       \
     i = len + 1;                                                        \
     r->data[--i] = '\0';                                                \
     do {                                                                \

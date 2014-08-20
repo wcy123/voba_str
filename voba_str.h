@@ -12,7 +12,7 @@ typedef struct voba_str_s {
     uint32_t len;
 } voba_str_t;
 INLINE voba_str_t * voba_str_empty();
-INLINE voba_str_t * voba_mkstr(char c, uint32_t len);
+INLINE voba_str_t * voba_str_from_char(char c, uint32_t len);
 INLINE voba_str_t * voba_str_fmt_pointer(const void * p);
 INLINE voba_str_t * voba_str_fmt_int8_t(int8_t x, int8_t base);
 INLINE voba_str_t * voba_str_fmt_uint8_t(uint8_t x, uint8_t base);

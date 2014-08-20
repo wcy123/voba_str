@@ -29,7 +29,7 @@ int test_2()
 }
 int test_3()
 {
-    voba_str_t * s1 = voba_mkstr('!',32) ;
+    voba_str_t * s1 = voba_str_from_char('!',32) ;
     assert(s1->capacity == 64);
     assert(voba_strlen(s1) == 32);
     dump_string(s1);
@@ -303,7 +303,7 @@ int test_15()
     assert(p1 == NULL);
 
     
-    p4 = voba_mkstr('\0',4);
+    p4 = voba_str_from_char('\0',4);
     char * data = p4->data;
     assert(p4->capacity == 8);
     assert(voba_strlen(p4) == 4);
