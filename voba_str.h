@@ -21,7 +21,10 @@ INLINE voba_str_t * voba_str_fmt_int32_t(int32_t x, int32_t base);
 INLINE voba_str_t * voba_str_fmt_uint32_t(uint32_t x, uint32_t base);
 INLINE voba_str_t * voba_str_fmt_int64_t(int64_t x, int64_t base);
 INLINE voba_str_t * voba_str_fmt_uint64_t(uint64_t x, uint64_t base);
-INLINE voba_str_t * voba_str_fmt_float(float);
+// why there is a dummy flag? because a macro could be used to change
+// str_fmt_xxx_t, other fmt_xxx function has additional argument
+// `base`, so that fmt_float must have a dummy flag
+INLINE voba_str_t * voba_str_fmt_float(float,int flag);
 INLINE voba_str_t * voba_str_from_cstr(const char * str);
 INLINE const char * voba_str_to_cstr(voba_str_t *s );
 INLINE char       * voba_str_to_str(voba_str_t *s );

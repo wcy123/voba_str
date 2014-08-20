@@ -161,7 +161,7 @@ VOBA_STR_FMT_INT( int32_t,1)
 VOBA_STR_FMT_INT(uint32_t,0)
 VOBA_STR_FMT_INT( int64_t,1)
 VOBA_STR_FMT_INT(uint64_t,0)
-INLINE voba_str_t * voba_str_fmt_float(float x)
+INLINE voba_str_t * voba_str_fmt_float(float x, int flag)
 {
     return voba_str_from_cstr("not implemented");
 }
