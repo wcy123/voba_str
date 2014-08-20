@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdarg.h>
 #include <assert.h>
 #include <string.h>
 #include <gc.h>
@@ -165,6 +166,27 @@ INLINE voba_str_t * voba_str_fmt_float(float x, int flag)
 {
     return voba_str_from_cstr("not implemented");
 }
+INLINE voba_str_t * voba_str_from_file(const char * filename)
+{
+    FILE * fp = fopen(filename, "r");
+    if(fp == NULL){
+        return NULL;
+    }
+    voba_str_t * ret = voba_str_from_FILE(fp);
+    fclose(fp);
+    return ret;
+}
+INLINE voba_str_t * voba_str_from_FILE(FILE * fp)
+{
+    voba_str_t * ret = NULL;
+    int c;
+    if(fp == NULL) return NULL;
+    ret = voba_str_empty();
+    while((c = fgetc(fp))!= EOF){
+        ret = voba_strcat_char(ret,(char)c);
+    }
+    return ret;
+}
 INLINE voba_str_t * voba_str_from_cstr(const char * str)
 {
     str = (str==NULL?"":str);
@@ -228,6 +250,20 @@ INLINE voba_str_t * voba_strcat_data(voba_str_t * s1, const char * data, uint32_
         return s1;
     }
     return v__cat_data(s1,data,len);
+}
+static voba_str_t * voba_vstrcat(voba_str_t * s1, ...)
+{
+    int n = 0;
+    va_list ap;
+    va_start(ap, s1);
+    voba_str_t * s ;
+    for(n = 0, s = va_arg(ap,voba_str_t*);
+        n < 100 && s!= NULL;
+        n++, s = va_arg(ap,voba_str_t*)){
+        s1 = voba_strcat(s1,s);
+    }
+    va_end(ap);
+    return s1;
 }
 INLINE voba_str_t * voba_strclr(voba_str_t * s1)
 {

@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stdio.h>
 #include "inline.h"
 #ifdef __cplusplus
 extern "C" {
@@ -25,11 +26,14 @@ INLINE voba_str_t * voba_str_fmt_uint64_t(uint64_t x, uint64_t base);
 // str_fmt_xxx_t, other fmt_xxx function has additional argument
 // `base`, so that fmt_float must have a dummy flag
 INLINE voba_str_t * voba_str_fmt_float(float,int flag);
+INLINE voba_str_t * voba_str_from_file(const char * filename);
+INLINE voba_str_t * voba_str_from_FILE(FILE * fp);
 INLINE voba_str_t * voba_str_from_cstr(const char * str);
 INLINE const char * voba_str_to_cstr(voba_str_t *s );
 INLINE char       * voba_str_to_str(voba_str_t *s );
 INLINE voba_str_t * voba_str_from_data(const void * p, uint32_t len );
 INLINE voba_str_t * voba_strcat(voba_str_t * s1, const voba_str_t * s2);
+static voba_str_t * voba_vstrcat(voba_str_t * s1, ...);
 INLINE voba_str_t * voba_strcat_cstr(voba_str_t * s1, const char * s2);
 INLINE voba_str_t * voba_strcat_char(voba_str_t * s1, const char c);
 INLINE voba_str_t * voba_strcat_data(voba_str_t * s1, const char * data, uint32_t len);

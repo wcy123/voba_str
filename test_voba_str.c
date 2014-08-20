@@ -171,7 +171,7 @@ int test_12()
     voba_str_t* p1 = voba_str_from_cstr("");
     assert(p1->capacity == 0);
     assert(voba_strlen(p1) == 0);
-    assert(voba_strlen(NULL) == UINT_MAX);
+    assert(voba_strlen(NULL) == 0);
     assert(p1->data != 0);
     assert(*p1->data == '\0');
     voba_str_t* p2 = voba_strcat(p1, voba_str_from_cstr("GOOD"));
@@ -391,6 +391,40 @@ int test_18()
     dump_string(p2);
     return 1;
 }
+int test_19()
+{
+    voba_str_t * p1 = voba_str_from_file(__FILE__);
+    assert(p1);
+    fwrite(p1->data,p1->len,1,stdout);
+
+    p1 = voba_str_from_file("file does not exists");
+    assert(p1 == NULL);
+
+    p1 = voba_str_from_FILE(stdin);
+    assert(p1);
+    assert(p1->len != 0);
+    fwrite(p1->data,p1->len,1,stdout);
+    return 1;
+}
+int test_20()
+{
+    voba_str_t * p1 = voba_str_from_cstr("hello");
+    voba_str_t * s = voba_str_from_cstr(" ");
+    voba_str_t * p2 = voba_str_from_cstr("world");
+    voba_str_t * x = voba_str_empty();
+    const char * s1 = voba_str_to_cstr(NULL);
+    assert(s1 && *s1 == '\0');
+    x = voba_vstrcat(x,p1,s,p2,NULL);
+    assert(x && x->len == 11);
+    printf("%s %d\n",voba_str_to_cstr(x),x->len);
+
+    voba_str_t * s2 = voba_substr(x,1,3);
+    assert(s2 && s2->len == 3);
+    s1 = voba_str_to_cstr(s2);
+    assert(s1 && strcmp(s1,"ell") == 0);
+    printf("%s\n",s1);
+    return 1;
+}
 int main(int argc, char *argv[])
 {
     RUN_REST(1);
@@ -411,6 +445,8 @@ int main(int argc, char *argv[])
     RUN_REST(16);        
     RUN_REST(17);
     RUN_REST(18);
+    RUN_REST(19);
+    RUN_REST(20);
     return 0;
 }
 

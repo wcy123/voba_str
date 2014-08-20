@@ -2,6 +2,7 @@
 #    -fprofile-arcs -ftest-coverage 
 
 gcc -std=c99 \
+    -DINLINE='static inline' \
      -ggdb -O0 \
      -fprofile-arcs -ftest-coverage \
      -Wall -Werror\
@@ -10,5 +11,5 @@ gcc -std=c99 \
     -o test_voba_str\
     test_voba_str.c \
     -lgc-lib &&
-    ./test_voba_str &&
-    gcov ./test_voba_str 
+    echo hello | ./test_voba_str &&
+    echo hello | gcov ./test_voba_str 
