@@ -33,7 +33,9 @@ INLINE const char * voba_str_to_cstr(voba_str_t *s );
 INLINE char       * voba_str_to_str(voba_str_t *s );
 INLINE voba_str_t * voba_str_from_data(const void * p, uint32_t len );
 INLINE voba_str_t * voba_strcat(voba_str_t * s1, const voba_str_t * s2);
-static voba_str_t * voba_vstrcat(voba_str_t * s1, ...);
+#define VOBA_STRCAT(...) voba_vstrcat(voba_str_empty(), ##__VA_ARGS__ , NULL)
+#define VOBA_CONST_CHAR(s) voba_str_from_data(s,sizeof(s) - 1)
+__attribute__((used))static voba_str_t * voba_vstrcat(voba_str_t * s1, ...);
 INLINE voba_str_t * voba_strcat_cstr(voba_str_t * s1, const char * s2);
 INLINE voba_str_t * voba_strcat_char(voba_str_t * s1, const char c);
 INLINE voba_str_t * voba_strcat_data(voba_str_t * s1, const char * data, uint32_t len);

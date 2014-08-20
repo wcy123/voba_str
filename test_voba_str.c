@@ -423,6 +423,16 @@ int test_20()
     s1 = voba_str_to_cstr(s2);
     assert(s1 && strcmp(s1,"ell") == 0);
     printf("%s\n",s1);
+    //
+    x = VOBA_STRCAT(voba_str_from_cstr("HELLO"),
+                     voba_str_from_cstr(" "),
+                     voba_str_from_cstr("WORLD"));
+    assert(x && x->len == 11);
+    //
+    x = VOBA_STRCAT(VOBA_CONST_CHAR("HELLO"),
+                    VOBA_CONST_CHAR(" "),
+                    VOBA_CONST_CHAR("WORLD"));
+    assert(x && x->len == 11);
     return 1;
 }
 int main(int argc, char *argv[])
