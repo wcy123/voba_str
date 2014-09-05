@@ -435,6 +435,15 @@ int test_20()
     assert(x && x->len == 11);
     return 1;
 }
+int test_21()
+{
+    voba_str_t * p1 = voba_str_from_cstr("hello");
+    uint32_t x = voba_str_find(p1,'e',0);
+    assert(x == 1);
+    x = voba_str_find(p1,'x',0);
+    assert(x == UINT32_MAX);
+    return 1;
+}
 int main(int argc, char *argv[])
 {
     RUN_REST(1);
@@ -457,6 +466,7 @@ int main(int argc, char *argv[])
     RUN_REST(18);
     RUN_REST(19);
     RUN_REST(20);
+    RUN_REST(21);    
     return 0;
 }
 

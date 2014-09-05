@@ -351,3 +351,13 @@ INLINE voba_str_t * voba_str_replace(voba_str_t * s1, char from, char to)
     }
     return s1;
 }
+INLINE uint32_t voba_str_find(voba_str_t * s1, char c, uint32_t from)
+{
+    if(!v__is_valid(s1)) return UINT32_MAX;
+    for(uint32_t i = from; i < s1->len; ++i){
+        if(s1->data[i] == c){
+            return i;
+        }
+    }
+    return UINT32_MAX;
+}
