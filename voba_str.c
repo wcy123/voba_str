@@ -318,13 +318,16 @@ INLINE voba_str_t * voba_tolower(voba_str_t * s1)
 }
 INLINE int voba_strcmp(const voba_str_t* s1, const voba_str_t * s2)
 {
-    if(s1 == NULL) return -1;
-    if(s2 == NULL ) return 1;
-    if(s1 == s2) return 0;
-    if(s1->len > s2->len ) return 1;
-    if(s1->len < s2->len ) return -1;
-    if(s1->data == s2->data)  return 0;
-    return strncmp(s1->data,s2->data, (size_t) s1->len);
+    int ret = 0;
+    if(s1 == NULL) ret =  -1;
+    else if(s2 == NULL ) ret =  1;
+    else if(s1 == s2) ret =  0;
+    else if(s1->len > s2->len ) ret =  1;
+    else if(s1->len < s2->len ) ret =  -1;
+    else if(s1->data == s2->data)  ret =  0;
+    else ret = strncmp(s1->data,s2->data, (size_t) s1->len);
+    //fprintf(stderr,__FILE__ ":%d:[%s] ret = %d %s %s %d %d\n", __LINE__, __FUNCTION__,ret,s1->data,s2->data,s1->len,s2->len);
+    return ret;
 }
 INLINE uint32_t voba_strlen(const voba_str_t * s1)
 {
