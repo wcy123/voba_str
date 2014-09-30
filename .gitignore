@@ -2,3 +2,4 @@ test_voba_str
 *.gcov
 *.gcda
 *.gcno
+*.out

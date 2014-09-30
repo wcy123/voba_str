@@ -43,7 +43,7 @@ INLINE
 voba_str_t * v__new(uint32_t capacity, uint32_t len, const char * data, int copy_data)
 {
     voba_str_t * ret = (voba_str_t*)GC_MALLOC(sizeof(voba_str_t));
-    assert(capacity == 0 || len + 1 < capacity);
+    assert(capacity == 0 || len  < capacity);
     ret->capacity = capacity;
     ret->len = len;
     if(copy_data){
@@ -87,10 +87,10 @@ voba_str_t * v__cat_data(voba_str_t * s1, const void * data, uint32_t len)
     voba_str_t * r = s1;
     if(r->capacity == 0) {
         // copy-on-write
-        const uint32_t capacity = v__len_to_capacity(len + r->len);
+        const uint32_t capacity = v__len_to_capacity(len + r->len + 1);
         r = v__new(capacity,r->len,r->data,1 /*copy data*/);
     }else{
-        const uint32_t capacity = v__len_to_capacity(len + r->len);
+        const uint32_t capacity = v__len_to_capacity(len + r->len + 1);
         if(capacity > r->capacity){
             r->capacity = capacity;
             r->data = (char*) GC_REALLOC(r->data,r->capacity);
