@@ -1,6 +1,13 @@
 #include <limits.h>
 #include <sys/time.h>
 #include "./voba_str.h"
+#ifndef NDEBUG
+int assert(int x){
+    if(!x){
+        abort();
+    }
+}
+#endif
 double get_time(void)
 {
     struct timeval tv;
