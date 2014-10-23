@@ -2,11 +2,13 @@
 #include <sys/time.h>
 #include "./voba_str.h"
 #ifndef NDEBUG
+#ifndef assert
 int assert(int x){
     if(!x){
         abort();
     }
 }
+#endif
 #endif
 double get_time(void)
 {
