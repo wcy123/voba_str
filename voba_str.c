@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include <assert.h>
 #include <string.h>
-#include <gc.h>
+#include "my_gc.h"
 #include <ctype.h>
 
 #include "voba_str.h"
