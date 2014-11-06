@@ -1,7 +1,14 @@
 #pragma once
 #include <stdint.h>
 #include <stdio.h>
-#include "inline.h"
+#ifndef INLINE
+# if __GNUC__ && !__GNUC_STDC_INLINE__
+#  define INLINE extern inline
+# else
+#  define INLINE inline
+# endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

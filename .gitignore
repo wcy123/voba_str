@@ -3,3 +3,4 @@ test_voba_str
 *.gcda
 *.gcno
 *.out
+depend.inc
