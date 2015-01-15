@@ -1,8 +1,6 @@
-CFLAGS += -DINLINE='static inline'  -fprofile-arcs -ftest-coverage -Wall -Werror
-CFLAGS += -I /home/chunywan/d/other-working/GC/bdwgc/include
-CFLAGS += -std=c99
-LDFLAGS += -L /home/chunywan/d/other-working/GC/bdwgc/mybuild 
-LDFLAGS += -lgc-lib
+CFLAGS += -DINLINE='static inline'  -fprofile-arcs -ftest-coverage 
+CFLAGS += -DUSE_BDW_GC
+LDFLAGS += -lgc
 CFLAGS += -Wno-unused-variable -Wno-unused-but-set-variable
 
 all: test_voba_str.out
