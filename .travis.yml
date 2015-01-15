@@ -3,3 +3,9 @@ compiler:
   - gcc
   - clang
 script:  make
+
+before_script:
+  - wget http://www.hboehm.info/gc/gc_source/gc-7.4.2.tar.gz
+  - tar -xzvf gc-7.4.2.tar.gz
+  - cd gc-7.4.2 && ./configure --enable-shared=yes --enable-static=no --prefix=/usr && make && make install
+  
