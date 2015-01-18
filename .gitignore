@@ -1,3 +1,6 @@
+docs/html
+docs/doxygen_sqlite3.db
+voba_str.tag
 test_voba_str
 *.gcov
 *.gcda
@@ -33,3 +36,4 @@ depend.inc
 *.i*86
 *.x86_64
 *.hex
+

@@ -12,14 +12,61 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+/** @file 
+Voba String Library
+=====================
+
+\verbatim
++----------------+------------+       
+|  const char * data          |       
++----------------+------------+       
+| capcity(32bits)| len(32bit) |       
++-----------------------------+       
+\endverbatim
+
+in order to keep it simple, the above structure is used, see voba_str_s
+
+*/
+
+/** the key data structure of this library 
+ */
 typedef struct voba_str_s {
-    char *   data;
+    /** if voba_str_s::data is NULL, it is an invalid string.
+     * there is '\0' at the end.*/
+    char *   data; 
+    /** the size of buffer. 
+     *
+     *  when voba_str_s::capacity is 0, voba_str_s::data pointed to a
+     *  readonly data.
+     */
     uint32_t capacity;
-    uint32_t len;
+    /** the length of string
+     *
+     * it does not include the '\0' at the end of buffer.
+     * 
+     */
+    uint32_t len;/*!< the size of the string*/
 } voba_str_t;
+/** \name constructors */
+/**@{ */    
+/** create an empty string
+ *  - voba_str_s::capacity = 0, readonly data.
+ *  - voba_str_s::len = 0
+ *  - voba_str_s::data = ""
+ * */
 INLINE voba_str_t * voba_str_empty();
+/** create an string from char
+ * @param c the char
+ * @param len length of the string
+ * @return a string
+ * @code{.c}
+ *    voba_str_t * s = voba_str_from_char('a',4);
+ * @endcode
+ * \a s is a string "aaaa"
+ * */     
 INLINE voba_str_t * voba_str_from_char(char c, uint32_t len);
+/** format a pointer
+ */
 INLINE voba_str_t * voba_str_fmt_pointer(const void * p);
 INLINE voba_str_t * voba_str_fmt_int8_t(int8_t x, int8_t base);
 INLINE voba_str_t * voba_str_fmt_uint8_t(uint8_t x, uint8_t base);
@@ -36,6 +83,10 @@ INLINE voba_str_t * voba_str_fmt_float(float,int flag);
 INLINE voba_str_t * voba_str_from_file(const char * filename);
 INLINE voba_str_t * voba_str_from_FILE(FILE * fp);
 INLINE voba_str_t * voba_str_from_cstr(const char * str);
+/**@} */
+
+/** \name methods */
+/**@{ */        
 INLINE const char * voba_str_to_cstr(voba_str_t *s );
 INLINE char       * voba_str_to_str(voba_str_t *s );
 INLINE voba_str_t * voba_str_from_data(const void * p, uint32_t len );
@@ -58,7 +109,7 @@ INLINE uint32_t     voba_strlen(const voba_str_t * s1);
 INLINE voba_str_t * voba_substr(voba_str_t * s1, uint32_t from, uint32_t to);
 INLINE voba_str_t * voba_str_replace(voba_str_t * s1, char from, char to);
 INLINE uint32_t     voba_str_find(voba_str_t * s1, char c, uint32_t from);
-//---------------------------------------------------------------------------------
+/**@} */
 #include "voba_str.c"
 
 #ifdef __cplusplus

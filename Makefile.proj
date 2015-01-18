@@ -9,7 +9,7 @@ test_voba_str: test_voba_str.c
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
 
 test_voba_str.out: test_voba_str
-	sh run.sh | tee $@
+	sh run.sh | tee     $@
 
 install_files += $(includedir)/voba_str.h
 install_files += $(includedir)/voba_str.c
