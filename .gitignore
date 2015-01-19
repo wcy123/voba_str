@@ -37,3 +37,5 @@ depend.inc
 *.x86_64
 *.hex
 
+doxygen_sqlite3.db
+html
