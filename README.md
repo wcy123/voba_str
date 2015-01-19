@@ -11,15 +11,17 @@ why a new string library?
 
  2. I want to a simple data structure as below
 
-~~~~~{.c}
-typedef struct voba_str_s {
+ ~~~~~{.c}
+ typedef struct voba_str_s {
     char *   data;
     uint32_t capacity;
     uint32_t len;
-} voba_str_t;
-~~~~~
+ } voba_str_t;
+ ~~~~~
 
  3. it is a header only library.
+
+see <http://wcy123.github.io/voba_str/index.html> for more details
 
 
 
