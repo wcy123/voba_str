@@ -38,7 +38,6 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li class="current"><a href="index.html"><span>Main&#160;Page</span></a></li>
-      <li><a href="pages.html"><span>Related&#160;Pages</span></a></li>
       <li><a href="annotated.html"><span>Classes</span></a></li>
       <li><a href="files.html"><span>Files</span></a></li>
       <li>
@@ -79,10 +78,25 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="title">voba string library Documentation</div>  </div>
 </div><!--header-->
 <div class="contents">
-</div><!-- contents -->
+<div class="textblock"><p>It is a string library.</p>
+<p>why a new string library?</p>
+<ol type="1">
+<li>I want to use the <a href="http://www.hboehm.info/gc/">A garbage collector for C and C++</a></li>
+<li>I want to a simple data structure as below</li>
+</ol>
+<div class="fragment"><div class="line"><span class="keyword">typedef</span> <span class="keyword">struct </span><a class="code" href="structvoba__str__s.html">voba_str_s</a> {</div>
+<div class="line">   <span class="keywordtype">char</span> *   <a class="code" href="structvoba__str__s.html#a08ff78c9600ed4994f77c8f53db13763">data</a>;</div>
+<div class="line">   uint32_t <a class="code" href="structvoba__str__s.html#a83e322207759b447a5fbc51b5a1b6ccd">capacity</a>;</div>
+<div class="line">   uint32_t <a class="code" href="structvoba__str__s.html#a319a65427a501e7ace16605202ef0a04">len</a>;</div>
+<div class="line">} <a class="code" href="voba__str_8h.html#adc66161948c8ab3e7a72311eb924e0e9">voba_str_t</a>;</div>
+</div><!-- fragment --><ol type="1">
+<li>it is a header only library.</li>
+</ol>
+<p>see <a href="http://wcy123.github.io/voba_str/index.html">http://wcy123.github.io/voba_str/index.html</a> for more details </p>
+</div></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Mon Jan 19 2015 16:25:25 for voba string library by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Mon Jan 19 2015 17:18:55 for voba string library by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.8
 </small></address>
