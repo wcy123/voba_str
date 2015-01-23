@@ -1,6 +1,8 @@
 # a string library
 ==================
 
+[![Build Status](https://travis-ci.org/wcy123/voba_str.svg)](https://travis-ci.org/wcy123/voba_str)
+
 It is a string library.
 
 why a new string library?
