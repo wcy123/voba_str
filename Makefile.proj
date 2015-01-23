@@ -1,7 +1,6 @@
 CFLAGS += -DINLINE='static inline'  -fprofile-arcs -ftest-coverage 
 CFLAGS += -DUSE_BDW_GC
-LDFLAGS += -lgc
-CFLAGS += -Wno-unused-variable -Wno-unused-but-set-variable
+LDFLAGS += -lgc -Wall -Werror
 
 all: test_voba_str.out
 
