@@ -2,7 +2,7 @@ CFLAGS += -DINLINE='static inline'  -fprofile-arcs -ftest-coverage
 CFLAGS += -DUSE_BDW_GC
 LDFLAGS += -lgc -Wall -Werror
 
-all: test_voba_str.out
+all: 
 
 test_voba_str: test_voba_str.c
 	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
@@ -19,6 +19,8 @@ $(includedir)/voba_str.c: voba_str.c
 
 
 CLEANED_FILES += test_voba_str test_voba_str.out test_voba_str.gcda
+
+test: test_voba_str.out
 
 
 # Local Variables:
