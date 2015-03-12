@@ -106,6 +106,12 @@ INLINE voba_str_t * voba_toupper(voba_str_t * s1);
 INLINE voba_str_t * voba_tolower(voba_str_t * s1);
 INLINE int          voba_strcmp(const voba_str_t* s1, const voba_str_t * s2);
 INLINE uint32_t     voba_strlen(const voba_str_t * s1);
+/** @brief return a substr
+
+No new memory allocated, the return value shares the same memory as
+`s1`.
+
+ */   
 INLINE voba_str_t * voba_substr(voba_str_t * s1, uint32_t from, uint32_t to);
 INLINE voba_str_t * voba_str_replace(voba_str_t * s1, char from, char to);
 INLINE uint32_t     voba_str_find(voba_str_t * s1, char c, uint32_t from);
