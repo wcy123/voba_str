@@ -245,7 +245,10 @@ int test_13()
     assert(p4->capacity == 8);
     assert(voba_strlen(p4) == 4);
     assert(p3->data != p4->data);
-    voba_str_t * p5 = voba_strdup(p4);
+#ifndef NDEBUG    
+    voba_str_t * p5 =
+#endif        
+        voba_strdup(p4);
     assert(p4->capacity == 8);
     assert(voba_strlen(p4) == 4);
     assert(p5->capacity == 8);
@@ -255,9 +258,15 @@ int test_13()
 }
 int test_14()
 {
-    voba_str_t * p1 = voba_strclr(NULL);
+#ifndef NDEBUG
+    voba_str_t * p1 =
+#endif
+        voba_strclr(NULL);
     assert(p1 == NULL);
-    p1  = voba_strdup(NULL);
+#ifndef NDEBUG
+    p1 =
+#endif
+        voba_strdup(NULL);
     assert(p1 == NULL);
     voba_str_t * p4 = voba_str_from_cstr("GOOD");
     voba_strclr(p4);
@@ -278,7 +287,10 @@ printf("runnint test " # n " done\n")            ;      \
 }while(0)
 int test_15()
 {
-    voba_str_t * p1 = voba_strcpy_cstr(NULL,"GOOD");
+#ifndef NDEBUG
+    voba_str_t * p1 =
+#endif
+        voba_strcpy_cstr(NULL,"GOOD");
     assert(p1 == NULL);
 
     voba_str_t * p4 = voba_str_empty();
@@ -305,15 +317,23 @@ int test_15()
     assert(p4->data != NULL);
     assert(*p4->data == 'G');    
 
-    p1 = voba_strcpy_data(NULL,NULL,10);
+#ifndef NDEBUG
+    p1 =
+#endif
+        voba_strcpy_data(NULL,NULL,10);
     assert(p1 == NULL);
 
-    p1 = voba_strcpy_data(p4,NULL,10);
+#ifndef NDEBUG
+    p1 =
+#endif
+        voba_strcpy_data(p4,NULL,10);
     assert(p1 == NULL);
 
     
     p4 = voba_str_from_char('\0',4);
+#ifndef NDEBUG
     char * data = p4->data;
+#endif
     assert(p4->capacity == 8);
     assert(voba_strlen(p4) == 4);
     assert(p4->data == data);
@@ -376,7 +396,10 @@ int test_17()
 {
     voba_str_t* p1 = voba_str_from_cstr("good");
     voba_str_t* p4 = p1;
-    voba_str_t * p5 = voba_substr(p4,1,3);
+#ifndef NDEBUG
+    voba_str_t * p5 =
+#endif
+        voba_substr(p4,1,3);
     assert(voba_strcmp(p5,voba_str_from_cstr("ood"))==0);
 
         
@@ -394,7 +417,10 @@ int test_18()
     assert(p2!=p1);
     assert(p2->data[0] == '/');
     dump_string(p2);
-    voba_str_t* p3 = voba_str_replace(p2,'/','.');
+#ifndef NDEBUG
+    voba_str_t* p3 =
+#endif
+        voba_str_replace(p2,'/','.');
     assert(p2==p3);
     assert(p2->data[0] == '.');
     dump_string(p2);
@@ -447,9 +473,15 @@ int test_20()
 int test_21()
 {
     voba_str_t * p1 = voba_str_from_cstr("hello");
-    uint32_t x = voba_str_find(p1,'e',0);
+#ifndef NDEBUG
+    uint32_t x =
+#endif
+        voba_str_find(p1,'e',0);
     assert(x == 1);
-    x = voba_str_find(p1,'x',0);
+#ifndef NDEBUG
+    x =
+#endif
+        voba_str_find(p1,'x',0);
     assert(x == UINT32_MAX);
     return 1;
 }
