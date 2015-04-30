@@ -55,6 +55,7 @@ voba_str_t * v__new(uint32_t capacity, uint32_t len, const char * data, int copy
 {
     voba_str_t * ret = (voba_str_t*)GC_MALLOC(sizeof(voba_str_t));
     assert(capacity == 0 || len  < capacity);
+    ret->type_tag = voba_cls_str;
     ret->capacity = capacity;
     ret->len = len;
     if(copy_data){
@@ -104,6 +105,7 @@ voba_str_t * v__cat_data(voba_str_t * s1, const void * data, uint32_t len)
         const uint32_t capacity = v__len_to_capacity(len + r->len + 1);
         if(capacity > r->capacity){
             r->capacity = capacity;
+	    /// it seems no such function GC_REALLOC_ATOMIC
             r->data = (char*) GC_REALLOC(r->data,r->capacity);
             assert(r->data);
         }
