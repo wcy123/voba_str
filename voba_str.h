@@ -30,7 +30,19 @@ in order to keep it simple, the above structure is used, see voba_str_s
 
 /** the key data structure of this library 
  */
+#ifndef VOBA_TYPE_SMALL
+#define  VOBA_TYPE_SMALL 7
+#endif
+#ifndef VOBA_TYPE_CLASS
+#define  VOBA_TYPE_CLASS 6
+#endif
+#ifndef voba_cls_str
+#define  voba_cls_str (VOBA_TYPE_SMALL + (VOBA_TYPE_CLASS*8) + (0 * 256))
+#endif
 typedef struct voba_str_s {
+    /** magic type tag for voba_value, voba_cls_t
+     */
+    int64_t type_tag;
     /** if voba_str_s::data is NULL, it is an invalid string.
      * there is '\0' at the end.*/
     char *   data; 
