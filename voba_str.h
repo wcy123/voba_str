@@ -31,6 +31,10 @@ in order to keep it simple, the above structure is used, see voba_str_s
 /** the key data structure of this library 
  */
 typedef struct voba_str_s {
+    /** 
+	the type_tag is used for voba_value
+     */
+    int64_t type_tag;
     /** if voba_str_s::data is NULL, it is an invalid string.
      * there is '\0' at the end.*/
     char *   data; 
